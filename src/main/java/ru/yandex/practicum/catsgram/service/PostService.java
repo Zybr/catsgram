@@ -15,17 +15,31 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class PostService {
-    private final Map<Long, Post> posts = new HashMap<>();
+    private final Map<Long, Post> items = new HashMap<>();
     private final UserService userService;
 
     public Optional<Post> findOne(Long id) {
         return Optional.of(
-                this.posts.getOrDefault(id, null)
+                this.items.getOrDefault(id, null)
         );
     }
 
-    public Collection<Post> findAll() {
-        return posts.values();
+    public Collection<Post> findAll(
+            long size,
+            long from,
+            SortOrder sort
+    ) {
+        return items
+                .values()
+                .stream()
+                .sorted(
+                        (Post itemA, Post itemB) ->
+                                (sort == SortOrder.DESC ? -1 : 1)
+                                        * itemA.getId().compareTo(itemB.getId())
+                )
+                .skip(from)
+                .limit(size)
+                .toList();
     }
 
     public Post create(Post creation) {
@@ -44,7 +58,7 @@ public class PostService {
 
         creation.setId(getNextId());
         creation.setPostDate(Instant.now());
-        posts.put(creation.getId(), creation);
+        items.put(creation.getId(), creation);
         return creation;
     }
 
@@ -53,8 +67,8 @@ public class PostService {
             throw new ConditionsNotMetException("Id должен быть указан");
         }
 
-        if (posts.containsKey(updating.getId())) {
-            Post oldPost = posts.get(updating.getId());
+        if (items.containsKey(updating.getId())) {
+            Post oldPost = items.get(updating.getId());
 
             if (updating.getDescription() == null || updating.getDescription().isBlank()) {
                 throw new ConditionsNotMetException("Описание не может быть пустым");
@@ -69,7 +83,7 @@ public class PostService {
     }
 
     private long getNextId() {
-        long currentMaxId = posts.keySet()
+        long currentMaxId = items.keySet()
                 .stream()
                 .mapToLong(id -> id)
                 .max()

@@ -16,7 +16,7 @@ public class UserService {
     private Long lastId = 0L;
 
     public Optional<User> findOne(Long id) {
-        return Optional.of(
+        return Optional.ofNullable(
                 this.users.getOrDefault(id, null)
         );
     }
