@@ -1,76 +1,30 @@
 package ru.yandex.practicum.catsgram.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.catsgram.exception.ConditionsNotMetException;
-import ru.yandex.practicum.catsgram.exception.DuplicatedDataException;
-import ru.yandex.practicum.catsgram.exception.NotFoundException;
 import ru.yandex.practicum.catsgram.model.User;
+import ru.yandex.practicum.catsgram.service.UserService;
 
-import java.time.Instant;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
-    private final Map<Long, User> users = new HashMap<>();
-    private Long lastId = 0L;
+    private final UserService userService;
 
     @GetMapping
-    public Collection<User> getAll() {
-        return users.values();
+    public Collection<User> findAll() {
+        return userService.findAll();
     }
 
     @PostMapping
-    public User create(@RequestBody User user) {
-        if (user.getEmail() == null) {
-            throw new ConditionsNotMetException("Имейл должен быть указан");
-        }
-
-        if (this.getUserEmails().contains(user.getEmail())) {
-            throw new DuplicatedDataException("Этот имейл уже используется");
-        }
-
-        user.setRegistrationDate(Instant.now());
-
-        user.setId(++lastId);
-        users.put(user.getId(), user);
-
-        return user;
+    public User create(@RequestBody User creation) {
+        return userService.create(creation);
     }
 
     @PutMapping
-    public User update(@RequestBody User update) {
-        if (update.getId() == null) {
-            throw new ConditionsNotMetException("Id должен быть указан");
-        }
-
-        if (!this.users.containsKey(update.getId())) {
-            throw new NotFoundException("User not found");
-        }
-
-        User user = users.get(update.getId());
-
-        if (update.getUsername() != null) {
-            user.setUsername(update.getUsername());
-        }
-
-        if (update.getPassword() != null) {
-            user.setPassword(update.getPassword());
-        }
-
-        users.put(update.getId(), user);
-
-        return update;
-    }
-
-    private Set<String> getUserEmails() {
-        return this.users.values()
-                .stream()
-                .map(User::getEmail)
-                .collect(Collectors.toSet());
+    public User update(@RequestBody User updating) {
+        return userService.update(updating);
     }
 }

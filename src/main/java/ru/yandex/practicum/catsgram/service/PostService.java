@@ -1,7 +1,6 @@
 package ru.yandex.practicum.catsgram.service;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 import ru.yandex.practicum.catsgram.exception.ConditionsNotMetException;
 import ru.yandex.practicum.catsgram.exception.NotFoundException;
 import ru.yandex.practicum.catsgram.model.Post;
@@ -19,35 +18,35 @@ public class PostService {
         return posts.values();
     }
 
-    public Post create(@RequestBody Post post) {
-        if (post.getDescription() == null || post.getDescription().isBlank()) {
+    public Post create(Post creation) {
+        if (creation.getDescription() == null || creation.getDescription().isBlank()) {
             throw new ConditionsNotMetException("Описание не может быть пустым");
         }
 
-        post.setId(getNextId());
-        post.setPostDate(Instant.now());
-        posts.put(post.getId(), post);
-        return post;
+        creation.setId(getNextId());
+        creation.setPostDate(Instant.now());
+        posts.put(creation.getId(), creation);
+        return creation;
     }
 
-    public Post update(@RequestBody Post update) {
-        if (update.getId() == null) {
+    public Post update(Post updating) {
+        if (updating.getId() == null) {
             throw new ConditionsNotMetException("Id должен быть указан");
         }
 
-        if (posts.containsKey(update.getId())) {
-            Post oldPost = posts.get(update.getId());
+        if (posts.containsKey(updating.getId())) {
+            Post oldPost = posts.get(updating.getId());
 
-            if (update.getDescription() == null || update.getDescription().isBlank()) {
+            if (updating.getDescription() == null || updating.getDescription().isBlank()) {
                 throw new ConditionsNotMetException("Описание не может быть пустым");
             }
 
-            oldPost.setDescription(update.getDescription());
+            oldPost.setDescription(updating.getDescription());
 
             return oldPost;
         }
 
-        throw new NotFoundException("Пост с id = " + update.getId() + " не найден");
+        throw new NotFoundException("Пост с id = " + updating.getId() + " не найден");
     }
 
     private long getNextId() {

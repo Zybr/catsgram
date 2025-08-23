@@ -19,12 +19,12 @@ public class PostController {
     }
 
     @PostMapping
-    public Post create(@RequestBody Post post) {
-        return postService.create(post);
+    public Post create(@RequestBody Post creation) {
+        return postService.create(creation);
     }
 
     @PutMapping
-    public Post update(@RequestBody Post update) {
-        return postService.update(update);
+    public Post update(@RequestBody Post updating) {
+        return postService.update(updating);
     }
 }
