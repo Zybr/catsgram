@@ -12,17 +12,17 @@ import java.util.stream.Collectors;
 
 @Service
 public class UserService {
-    private final Map<Long, User> users = new HashMap<>();
+    private final Map<Long, User> models = new HashMap<>();
     private Long lastId = 0L;
 
     public Optional<User> findOne(Long id) {
         return Optional.ofNullable(
-                this.users.getOrDefault(id, null)
+                this.models.getOrDefault(id, null)
         );
     }
 
     public Collection<User> findAll() {
-        return users.values();
+        return models.values();
     }
 
     public User create(User creation) {
@@ -37,7 +37,7 @@ public class UserService {
         creation.setRegistrationDate(Instant.now());
 
         creation.setId(++lastId);
-        users.put(creation.getId(), creation);
+        models.put(creation.getId(), creation);
 
         return creation;
     }
@@ -47,11 +47,11 @@ public class UserService {
             throw new ConditionsNotMetException("Id должен быть указан");
         }
 
-        if (!this.users.containsKey(updating.getId())) {
+        if (!this.models.containsKey(updating.getId())) {
             throw new NotFoundException("User not found");
         }
 
-        User user = users.get(updating.getId());
+        User user = models.get(updating.getId());
 
         if (updating.getUsername() != null) {
             user.setUsername(updating.getUsername());
@@ -61,13 +61,13 @@ public class UserService {
             user.setPassword(updating.getPassword());
         }
 
-        users.put(updating.getId(), user);
+        models.put(updating.getId(), user);
 
         return updating;
     }
 
     private Set<String> getUserEmails() {
-        return this.users.values()
+        return this.models.values()
                 .stream()
                 .map(User::getEmail)
                 .collect(Collectors.toSet());

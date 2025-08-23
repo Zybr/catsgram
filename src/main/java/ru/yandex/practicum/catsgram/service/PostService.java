@@ -15,12 +15,12 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class PostService {
-    private final Map<Long, Post> items = new HashMap<>();
+    private final Map<Long, Post> models = new HashMap<>();
     private final UserService userService;
 
     public Optional<Post> findOne(Long id) {
         return Optional.of(
-                this.items.getOrDefault(id, null)
+                this.models.getOrDefault(id, null)
         );
     }
 
@@ -29,7 +29,7 @@ public class PostService {
             long from,
             SortOrder sort
     ) {
-        return items
+        return models
                 .values()
                 .stream()
                 .sorted(
@@ -58,7 +58,7 @@ public class PostService {
 
         creation.setId(getNextId());
         creation.setPostDate(Instant.now());
-        items.put(creation.getId(), creation);
+        models.put(creation.getId(), creation);
         return creation;
     }
 
@@ -67,8 +67,8 @@ public class PostService {
             throw new ConditionsNotMetException("Id должен быть указан");
         }
 
-        if (items.containsKey(updating.getId())) {
-            Post oldPost = items.get(updating.getId());
+        if (models.containsKey(updating.getId())) {
+            Post oldPost = models.get(updating.getId());
 
             if (updating.getDescription() == null || updating.getDescription().isBlank()) {
                 throw new ConditionsNotMetException("Описание не может быть пустым");
@@ -83,7 +83,7 @@ public class PostService {
     }
 
     private long getNextId() {
-        long currentMaxId = items.keySet()
+        long currentMaxId = models.keySet()
                 .stream()
                 .mapToLong(id -> id)
                 .max()
