@@ -1,6 +1,7 @@
 package ru.yandex.practicum.catsgram.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.catsgram.exception.NotFoundException;
 import ru.yandex.practicum.catsgram.model.Post;
@@ -44,6 +45,7 @@ public class PostController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Post create(@RequestBody Post creation) {
         return postService.create(creation);
     }
