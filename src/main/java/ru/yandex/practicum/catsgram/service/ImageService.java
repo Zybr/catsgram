@@ -5,8 +5,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import ru.yandex.practicum.catsgram.exception.ConditionsNotMetException;
+import ru.yandex.practicum.catsgram.exception.ImageFileException;
+import ru.yandex.practicum.catsgram.exception.NotFoundException;
 import ru.yandex.practicum.catsgram.model.Image;
+import ru.yandex.practicum.catsgram.model.ImageData;
 import ru.yandex.practicum.catsgram.model.Post;
 
 import java.io.IOException;
@@ -49,13 +51,26 @@ public class ImageService extends AbstractModelService<Image> {
                 .toList();
     }
 
+    public ImageData getImageData(Long id) {
+        if (!models.containsKey(id)) {
+            throw new NotFoundException(
+                    String.format(
+                            "There is not Image with %s ID",
+                            id
+                    )
+            );
+        }
+
+        return loadFileData(models.get(id));
+    }
+
     private Post getPost(
             Long id
     ) {
         Optional<Post> post = postService.findOne(id);
 
         if (post.isEmpty()) {
-            throw new ConditionsNotMetException(
+            throw new NotFoundException(
                     String.format(
                             "There is not Post with %s ID",
                             id
@@ -77,11 +92,12 @@ public class ImageService extends AbstractModelService<Image> {
         try {
             image.setFilePath(saveFile(post, file));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new ImageFileException(e.getMessage());
         }
 
         image.setOriginalFileName(file.getOriginalFilename());
         image.setPostId(post.getId());
+        this.models.put(image.getId(), image);
 
         return image;
     }
@@ -107,6 +123,22 @@ public class ImageService extends AbstractModelService<Image> {
         file.transferTo(filePath);
 
         return filePath.toString();
+    }
+
+    private ImageData loadFileData(Image image) {
+        byte[] data;
+        try {
+            data = Files.readAllBytes(
+                    Paths.get(image.getFilePath())
+            );
+        } catch (IOException e) {
+            throw new ImageFileException(e.getMessage());
+        }
+
+        return new ImageData(
+                image.getOriginalFileName(),
+                data
+        );
     }
 
     private Path getImageDir(Post post) {
