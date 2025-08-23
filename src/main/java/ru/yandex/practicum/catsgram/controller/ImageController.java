@@ -1,9 +1,8 @@
 package ru.yandex.practicum.catsgram.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ru.yandex.practicum.catsgram.model.Image;
 import ru.yandex.practicum.catsgram.service.ImageService;
 
@@ -17,5 +16,13 @@ public class ImageController {
     @GetMapping("/posts/{postId}/images")
     public List<Image> getPostImages(@PathVariable("postId") long postId) {
         return imageService.getPostImages(postId);
+    }
+
+    @PostMapping("/posts/{postId}/images")
+    public List<Image> getPostImages(
+            @PathVariable("postId") long postId,
+            @RequestParam("images") List<MultipartFile> files
+    ) {
+        return imageService.saveImages(postId, files).stream().toList();
     }
 }

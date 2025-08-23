@@ -8,14 +8,11 @@ import ru.yandex.practicum.catsgram.model.Post;
 
 import java.time.Instant;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class PostService {
-    private final Map<Long, Post> models = new HashMap<>();
+public class PostService extends AbstractModelService<Post> {
     private final UserService userService;
 
     public Optional<Post> findOne(Long id) {
@@ -80,15 +77,5 @@ public class PostService {
         }
 
         throw new NotFoundException("Пост с id = " + updating.getId() + " не найден");
-    }
-
-    private long getNextId() {
-        long currentMaxId = models.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-
-        return ++currentMaxId;
     }
 }

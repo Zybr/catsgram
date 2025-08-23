@@ -11,9 +11,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class UserService {
+public class UserService extends AbstractModelService<User> {
     private final Map<Long, User> models = new HashMap<>();
-    private Long lastId = 0L;
 
     public Optional<User> findOne(Long id) {
         return Optional.ofNullable(
@@ -36,7 +35,7 @@ public class UserService {
 
         creation.setRegistrationDate(Instant.now());
 
-        creation.setId(++lastId);
+        creation.setId(getNextId());
         models.put(creation.getId(), creation);
 
         return creation;
