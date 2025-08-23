@@ -10,12 +10,19 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class PostService {
     private final Map<Long, Post> posts = new HashMap<>();
     private final UserService userService;
+
+    public Optional<Post> findOne(Long id) {
+        return Optional.of(
+                this.posts.getOrDefault(id, null)
+        );
+    }
 
     public Collection<Post> findAll() {
         return posts.values();
