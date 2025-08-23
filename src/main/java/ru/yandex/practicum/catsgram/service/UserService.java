@@ -7,16 +7,19 @@ import ru.yandex.practicum.catsgram.exception.NotFoundException;
 import ru.yandex.practicum.catsgram.model.User;
 
 import java.time.Instant;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class UserService {
     private final Map<Long, User> users = new HashMap<>();
     private Long lastId = 0L;
+
+    public Optional<User> findOne(Long id) {
+        return Optional.of(
+                this.users.getOrDefault(id, null)
+        );
+    }
 
     public Collection<User> findAll() {
         return users.values();
