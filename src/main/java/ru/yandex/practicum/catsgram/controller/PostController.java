@@ -4,12 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.catsgram.exception.NotFoundException;
+import ru.yandex.practicum.catsgram.exception.ParameterNotValidException;
 import ru.yandex.practicum.catsgram.model.Post;
 import ru.yandex.practicum.catsgram.service.PostService;
 import ru.yandex.practicum.catsgram.service.SortOrder;
 
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/posts")
@@ -37,6 +37,38 @@ public class PostController {
             @RequestParam(required = false, defaultValue = "0") Long from,
             @RequestParam(required = false, defaultValue = "desc") String sort
     ) {
+        List<String> sortValues = Arrays.stream(SortOrder.values())
+                .map(SortOrder::toString)
+                .toList();
+
+        boolean isSortValid = sortValues
+                .stream()
+                .anyMatch((sortOrder) -> sortOrder.equals(sort));
+
+        if (!isSortValid) {
+            throw new ParameterNotValidException(
+                    "sort",
+                    String.format(
+                            "Allowed values are: %s.",
+                            String.join(",", sortValues)
+                    )
+            );
+        }
+
+        if (size <= 0) {
+            throw new ParameterNotValidException(
+                    "size",
+                    "The value must be more than 0."
+            );
+        }
+
+        if (from < 0) {
+            throw new ParameterNotValidException(
+                    "from",
+                    "The value must be more or equal 0."
+            );
+        }
+
         return postService.findAll(
                 size,
                 from,
